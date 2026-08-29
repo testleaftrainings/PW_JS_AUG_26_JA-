@@ -1,0 +1,347 @@
+Q1. Explain the difference between Array map, filter and sort methods?
+
+Array sort methods are built-in JavaScript methods used to arrange, reorder, or reverse elements inside an array.
+
+Sort Method internal mechanism:
+-------------------------------
+
+let numberArray = [10, 8, 9, 7];
+
+numberArray.sort((a, b) => a - b); /
+
+//Step 1 :
+
+sort(10,8)=>10-8 // result 2 then positive we wil swap the position
+
+
+### 🟢 Step 1: Initial Array
+
+[10, 8, 9, 7]
+---
+
+### 🟢 Step 2: First Comparisons
+
+1. Compare **10 and 8**
+
+   * a = 10, b = 8 → `10 - 8 = 2` (positive)
+   * Swap → `[8, 10, 9, 7]`
+
+2. Compare **10 and 9**
+
+   * a = 10, b = 9 → `10 - 9 = 1` (positive)
+   * Swap → `[8, 9, 10, 7]`
+
+3. Compare **10 and 7**
+
+   * a = 10, b = 7 → `10 - 7 = 3` (positive)
+   * Swap → `[8, 9, 7, 10]`
+
+---
+
+### 🟢 Step 3: Next Pass
+
+1. Compare **8 and 9**
+
+   *  a = 8,b = 9 → `8 - 9 = -1` (negative)
+   * Keep order → `[8, 9, 7, 10]`
+
+2. Compare **9 and 7**
+
+   * a = 9, b = 7 → `9 - 7 = 2` (positive)
+   * Swap → `[8, 7, 9, 10]`
+
+3. Compare **9 and 10**
+
+   * a = 9, b = 10 → `9 - 10 = -1` (negative)
+   * Swap → `[8, 7, 9, 10]`
+
+---
+
+### 🟢 Step 4: Another Pass
+
+1. Compare **8 and 7**
+
+   * a = 8, b = 7 → `8 - 7 = 1` (positive)
+   * Swap → `[7, 8, 9, 10]`
+
+Now everything is in order 
+
+
+
+### Final Sorted Array
+
+[7, 8, 9, 10]
+
+
+
+* `a` and `b` are just **two numbers being compared**.
+* The compare function `(a - b)` tells JavaScript whether to swap them.
+
+
+//map->modifies every element in an array
+-------------------------------------------
+
+let number=[1,2,3]
+let result=number.map(number=>number*number)
+console.log(result) //[1,4,9]
+
+//filter->select the required element
+--------------------------------------
+
+let res=number.filter(number=>number%2===0) //1%2=0.5, 2%2=0
+console.log(res
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q2.What is the difference between a function login() {} and const login = function() {}? Specifically, how does hoisting affect them in a test script?
+
+Function Declarations are hoisted, meaning you can call the function before it is defined in your code. 
+Function Expressions are not hoisted; if you try to call them before the line of definition, you will get a ReferenceError.
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q3. Why does Playwright not suffer from the "Stale Element Exception" common in Selenium?
+
+In Selenium, stale element exception causes test failures, flakiness, and requires retry logic. Playwright overcomes this by using locators that re-query the 
+DOM and auto-wait, ensuring stable execution without stale element issues.
+
+In selenium, When a Stale Element Exception occurs, it means the element you are trying to use is no longer attached to the DOM and hence
+
+1. Test execution fails, script stops unless handled.
+element.click();// failed
+
+2.Flaky Test(Common), sometimes works and fail in
+Dynamic pages
+Page Refresh and navigation
+
+3. We may write additional code to handle it using try and catch block which makes code complex 
+try {
+    element.click();
+} catch (StaleElementReferenceException e) {
+    element = driver.findElement(By.id("id"));
+    element.click();
+}
+
+4. Increase the execution time
+re-finding the elements
+adding waits and retries(ideally slows down test suite)
+
+In Playwright,
+--------------
+ 
+1) No elemnet storage:
+it doesnot store element instead it queries DOM every time.
+
+const ele = page.locator('#username');
+await ele.fill('test');
+
+2) Auto Re-fetch after DOM changes:
+Automatically finds fresh element
+
+await page.reload();
+await page.locator('#username').fill('test');
+
+3) Built-in auto-waiting
+
+Waits for:
+Element to appear
+Be visible
+Be actionable, no manual retry needed
+
+4) Stable execution (less flaky)
+Handles dynamic UI smoothly
+No stale exceptions → more reliable tests
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q4. What mechanism does Playwright use to interact with the browser?
+
+Playwright communicates with browsers using the Chrome DevTools Protocol (CDP) over WebSocket, allowing direct control of browser actions.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q5. What is Chrome Dev Protocol?
+
+CDP is a low-level protocol used by tools (like Playwright, Puppeteer) to control, inspect, and debug Chromium-based browsers.
+It allows direct access to browser internals like **DOM**, **network**, **console**, etc.
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q6. what are the Browser Installation commands in PW.
+
+* Install Playwright with browsers:*
+  npx playwright install
+* This installs Chromium, Firefox, and WebKit browsers.
+
+* To install Playwright package:
+  npm install -D @playwright/test
+
+* To Execute Playwright code
+  npx playwright test filename.spec.ts
+
+npm: node package manager
+npx: node package executor
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q7.  What is the significance of test() in Playwright?
+
+test() is a function provided by the Playwright Test Runner to define and execute a test case.
+It is the core function provided by @playwright/test that allows you to write automated tests.
+
+Key Significance
+----------------
+
+1. Defines a Test Case
+
+test() is used to create a test with a name and test logic.
+
+2. Provides Built-in Fixtures
+
+test() gives access to fixtures like page, browser, context, etc
+page is automatically created by Playwright.
+
+3. Supports Test Organization
+
+test() allows grouping and structuring tests using features like:
+
+test.describe() – group related tests
+test.beforeEach() – setup before every test
+test.afterEach() – cleanup after tests
+
+4. Enables Parallel Execution
+
+Playwright can run multiple test() cases in parallel, improving test execution speed.
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+Q8. Explain about async/await?
+
+`async/await` is a cleaner way to handle Promises in JavaScript.
+
+* `async` keyword defines a function that returns a Promise.
+* `await` pauses execution until the Promise is resolved or rejected.
+
+
+async function getData() {
+  const response = await fetch(url);
+  console.log(response);
+}
+
+Makes asynchronous code look and behave like synchronous code.
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Q9. How does Playwright handle auto-waiting and retries?
+
+Playwright auto-waits for elements to become visible, enabled, and attached to the DOM.
+
+It also retries failed steps (like click or fill) until timeout is hit, reducing flakiness.
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q10. What is the role of Browser, Context, and Page in Playwright?
+ 
+
+Browser: Actual browser engine (Chromium, Firefox, WebKit)
+
+Context: Isolated environment like an incognito session
+
+Page: A single tab within a context
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q11: When do you get a Strict Mode Violation in Playwright? What are the causes and how do you fix it?
+
+A strict mode violation occurs when a locator matches more than one element, but Playwright expects exactly one element for an action like click(), fill(), etc.
+
+Strict mode violation occurs when a locator matches multiple elements. It is caused by non-unique or generic locators, and we fix it by refining the locator using 
+unique attributes, Playwright locators, or narrowing it with nth()
+
+Use Semantic Locators: Use getByRole with the name option. This filters out buttons that do not have the specific accessible text "Submit".
+
+Ex: In LeafTaps
+---------------
+
+import {test} from "@playwright/test"
+test('launch browser',async({page})=>{
+
+await page.goto('http://leaftaps.com/opentaps/control/main')
+await page.locator('input').fill('demosalesmanager');
+await page.locator('input').fill('crmsfa')
+})
+
+Error on execution
+------------------
+
+Error: locator.fill: Error: strict mode violation: locator('input') resolved to 3 elements:
+
+1st input tag for username
+2nd input tag for password
+3rd input tag for login
+
+Causes
+------
+
+1) Using generic locators:
+page.locator('input')
+
+2) Repeated elements in UI
+
+3) Dynamic lists / tables:
+Same structure repeated (rows, buttons)
+
+4) Non-unique attributes:
+Many elements share same class
+
+how to fix:
+-----------
+Identify how many elements are matched
+Make the locators unique
+Use better attribute
+Use Playwright locator(Accessibility-This works based on the label visible to the user, not HTML structure)
+keep nth() as the last option. If multiple elements are expected, narrow it down.
+Use parent-child relation (advanced locators)
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Assignment:
+-----------
+
+Write a reusable JavaScript function that takes a Playwright 'locator' as an input and returns 'true' if the element is both visible and enabled, otherwise returns 
+'false'. 
+
+
+
+import { test, Locator } from '@playwright/test';
+
+async function isReady(locator: Locator): Promise<boolean> {
+
+    return await locator.isVisible() &&
+           await locator.isEnabled();
+}
+
+test('Login Test', async ({ page }) => {
+
+    await page.goto('http://leaftaps.com/opentaps/control/main');
+
+    const username = page.locator('#username');
+
+    if (await isReady(username)) {
+
+        await username.fill('democsr');
+    }
+
+    const password = page.locator('#password');
+
+    if (await isReady(password)) {
+
+        await password.fill('crmsfa');
+    }
+
+    const loginButton = page.locator('.decorativeSubmit');
+
+    if (await isReady(loginButton)) {
+
+        await loginButton.click();
+    }
+
+});
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------

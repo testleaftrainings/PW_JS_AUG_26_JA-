@@ -1,0 +1,78 @@
+Q1. Explain the difference between Array map, filter and sort methods?
+
+Q2.What is the difference between a function login() {} and const login = function() 
+{}? Specifically, how does hoisting affect them in a test script?
+
+named function/function declaration
+function expression/anonymous function
+arrow function
+callback function
+
+//named function
+function login()
+{}
+login()
+
+//anonymous function
+const login = function()
+{}
+login()
+
+Q3. Why does Playwright not suffer from the "Stale Element Exception" common in 
+Selenium?
+
+
+Q4. What mechanism does Playwright use to interact with the browser?
+CDP
+
+Q5. What is Chrome Dev Protocol?
+
+
+Q6. what are the Browser Installation commands in PW.
+
+npm: node package manager
+npx: node package executor
+
+
+1) playwright installtion
+npm init playwright
+
+2) browser Installation
+chromium, webkit and firefox
+npx playwright install -installs all browsers
+npx playwright install webkit
+
+3) to install pw package
+npm install -D @playwright/test
+
+4)code execution
+npx playwright test filename.spec.ts (specifications.typescript)
+
+Q7.  What is the significance of test() in Playwright?
+
+Q8. Explain about async/await?
+
+Q9. How does Playwright handle auto-waiting and retries?
+
+Q10. What is the role of Browser, Context, and Page in Playwright?
+
+browser=chromium.launch()
+context=browser.newContext()
+page=context.newPage
+
+Q11: When do you get a Strict Mode Violation in Playwright? What are the causes and 
+how do you fix it?
+
+
+Assignment:
+
+Write a reusable JavaScript function that takes a Playwright 'locator' as an input and returns 
+'true' if the element is both visible and enabled, otherwise returns 'false'.
+
+
+F/B form:
+
+Aug 26 week2 JA session
+https://forms.cloud.microsoft/r/Px4yEb464w
+
+https://forms.cloud.microsoft/Pages/DesignPageV2.aspx?subpage=design&FormId=eOdNgpfGe0qp5fd14FyRQ0OoIk3-aJVKpiMuJXU1QmlUNE9LQVc0TUpSMUZEWFVOMjA0RkJDTVJFMi4u&Token=d7fd6073f5e845e19750fd5047cbbe64
