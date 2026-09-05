@@ -1,0 +1,96 @@
+Q1. How do you prioritize locator strategies in Playwright? What is your order of preference 
+between Playwright locators, CSS selectors, and XPath ?
+
+CSS-P2
+XPath-p3
+Playwright locators-P1
+
+
+Q2. What are dropdowns and how do we handle it in playwright?
+
+1. standard dropdown/native dropdown
+2. custom dropdown
+
+
+Ex:<select id="country">
+  <option value="IN">India</option>
+  <option value="US">United States</option>
+  <option value="UK">United Kingdom</option>
+</select>
+
+standard dropdown/native dropdown:
+
+3 ways
+
+select by value - p1
+select by index-p3
+select by label-p2
+
+await page.selectOption('#country',{value:"IN"})
+await page.selectOption('#country',{index:2})
+await page.selectOption('#country',{label:"United States"})
+
+
+Q3. How do you handle a dropdown that doesn't use the standard <select> tag but is built with a <div> or <ul> 
+(custom dropdown)?
+
+Handling Custom Dropdowns (Built with <div> or <ul>)
+
+Example:
+<div class="dropdown">
+  <div class="option">India</div>
+  <div class="option">USA</div>
+  <div class="option">UK</div>
+</div>
+
+custom dropdown:
+
+//first click to select the dropdown
+await page.locator(".dropdown").click()
+
+//select the option
+await page.locator('.option',{hasTex:'USA'}).click()
+
+
+Q4. How would you select a dropdown option that becomes visible only after hovering over another
+ element?
+
+Q5. How do you handle a dropdown that closes or disappears immediately after clicking it?
+
+console
+setTimeout(()=>{debugger},4000)
+
+Q6. Imagine there are 2 functions in playwright to enter a value in textbox, one is type and 
+another one is fill. When to use what?
+
+
+Q7. If a dropdown option is hidden behind a scrollable container. How will you select it?
+
+
+Q8. Your dropdown options load only after you type 3 characters in an input field. How do you 
+automate this?
+
+Q9. How do you select multiple options in a standard <select multiple> element?
+
+Q10. How do you use assertions in Playwright to validate UI behavior?
+
+default assertion time= 5s
+
+1. generic assertions/non-retry
+2. locator assertions/retry
+3. Hard assertions/by default -if assertion fails, test stops the execution.
+4. soft assertions/execution continues till the end code.
+
+Assignment:
+
+How would you write a playwright script to print all the app names listed in Google App Launcher
+(9 dot grid)
+
+F/B form:
+---------
+
+Aug 26 week3 JA session
+
+https://forms.cloud.microsoft/r/XprTEUzGnR
+
+https://forms.cloud.microsoft/Pages/DesignPageV2.aspx?subpage=design&FormId=eOdNgpfGe0qp5fd14FyRQ0OoIk3-aJVKpiMuJXU1QmlUNVNWMjJZV0dJNklIUEswMk1YNEdaVk45Ui4u&Token=7f419f34701e491da8a1f39ae0476450
