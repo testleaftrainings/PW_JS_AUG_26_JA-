@@ -1,0 +1,148 @@
+
+Q1: You're testing a legacy application that has three levels of nested iframes. 
+The innermost iframe contains the elements you need to interact with, but its 
+id attribute changes on every page reload (e.g., frame_4829, frame_9301, etc.). 
+The outer iframe IDs are static. How would you locate and work with that dynamic 
+inner iframe in Playwright? Please explain your approach and write the code to 
+click a button inside that dynamic iframe.?
+
+const outerframe=page.frameLocator('')
+const innerframe=outerframe.frameLocator('')
+await innerframe.locator('').click()
+
+
+Q2: In one of your test suites, you're interacting with an <iframe> (frame) that 
+sometimes takes 5–10 seconds to load its content. Your test frequently fails 
+because Playwright tries to interact with elements inside the frame before it's
+fully loaded. How would you handle this situation in Playwright to make the test 
+reliable without using arbitrary wait(5000) delays? 
+
+approach 1: use framelocator () 
+const frame=page.frameLocator('')
+await frame.locator('.pay now').click()
+
+approach 2: explicit assertion before the application
+const frame=page.frameLocator('')
+await expect(frame).toBeVisible()
+await button.click()
+
+
+Q3:You're automating a flow where clicking a 'Print Preview' button opens a new browser 
+tab. You need to verify that the new tab contains a specific text ('Invoice#1234') and 
+then close that tab to return to the original tab for the next step. How would you handle 
+this in Playwright? Please write the code and mention any edge cases or common pitfalls.
+
+let parentwin=context.waitForEvent('page')
+await page.locator('print preview').click()
+let newpage= await parentwin
+await expect(newpage.locator('invoice')).toBeVisible()
+await newpage.close()
+
+promise.all()  -> concurrent window handling
+using wrong context
+
+Q4. what is the difference between page.on and page.once?
+
+event listener for handling alerts.
+
+page.once->handles first occuring alert
+page.on->handles all the alerts present in the page
+
+page.on('dialog',async (alert)=>{
+
+}
+
+Q5. What is the difference between `page.frame()` and `frameLocator()`?
+
+page.frames()  //no of frames present in the page
+handling the frames
+1) index
+2) page.frame()
+3) frameLocator()
+
+Q6. How do you handle windows in playwright? How do you close a child window and return to the 
+parent?
+
+1. sequential method
+
+let parentwin=context.waitForEvent('page')
+await page.locator('print preview').click()
+let newpage= await parentwin
+
+2. concurrent method //recommended
+let [parentwin]=Promise.all([context.waitForEvent('page'),await page.locator('print preview').click()])
+
+1. close the child page-> redirected to parent page
+2. parentpage.bringToFront()-> focus a specific page
+
+Q7. How to automate file upload using playwright?
+
+1. with input[type="file"]-> directly inject the file to upload using setInputFiles('path')
+
+2. without input[type="file"]-> create the event listener and promise is also created
+
+let fileupload=page.waitForEvent('filechooser') //listerner and promise is created
+await page.locator('upload').click()  //trigger the click action
+let fup=await fileupload //resolve the promise and have the ref for fileupload
+await fup.setFiles('path')
+
+Q8. How can you verify the downloaded file name?
+
+compare expected vs received filename
+
+let expectedfilename="pw.pdf"
+let receivedfilename=download.suggestedFilename()
+
+expect (expectedfilename).toBe(receivedfilename)
+
+
+Q9. How do you validate the file type before uploading?
+
+report.pdf
+image.png
+
+const ext=path.extname(filepath)
+expect(ext).toBe('.png')
+
+
+Q10. Will this code correctly handle dialogs?
+
+
+page.on('dialog', async dialog => {
+  console.log(dialog.message());
+  //await dialog.accept('My Input Text');
+})
+
+await page.getByRole('button').click();
+
+no- listener must be registered before the click action.
+
+Q11. Test A runs as Admin, Test B as a standard user. Both reuse storageState to skip login. How do 
+you ensure isolation?
+
+create separate browser context for each user state
+
+const adminContext= await browser.newContext({storageState:'admin.json})
+const userContext= await browser.newContext({storageState:'user.json})
+
+Assignment:
+
+
+Q1: You're testing a multi-step workflow that spans three different pages (not tabs — 
+actual browser windows/pages). Step 1: Login on page A. Step 2: Click a link that opens 
+page B in a new window. Step 3: On page B, click a button that opens page C. Then you need 
+to go back to page A to verify a toast notification appeared. How would you manage navigation 
+between these three pages in Playwright? Show code for switching, verifying, and closing pages. 
+Also explain how this differs from handling multiple tabs.
+
+Q2.How to upload and download file using page.on and page.once
+
+
+F/B form:
+---------
+
+Aug 26 week 4 JA session
+
+https://forms.cloud.microsoft/r/F2MktCh6M4
+
+https://forms.cloud.microsoft/Pages/DesignPageV2.aspx?subpage=design&FormId=eOdNgpfGe0qp5fd14FyRQ0OoIk3-aJVKpiMuJXU1QmlUNEhJRkZOQ0pUUUhZT0tTVjVSUUpBNUxVQS4u&Token=f083b777cddf4145baeff0fc30b232bd
