@@ -1,0 +1,122 @@
+Q1. You are creating a Playwright automation framework. Why would you prefer TypeScript over 
+JavaScript?
+
+Q2. You have a function that accepts a username. How would you ensure that only strings are passed?
+
+function accept(username:string){
+
+    console.log(username)
+}
+accept("hello")
+
+
+Q3.You need to create user details containing id, name, and role. You will have multiple users 
+with the same structure. How would you design this in TypeScript without repeating the data structure?
+
+
+let id= 123
+let name=gauthami
+role=Admin
+
+Q4.You are designing test data for an automation framework. An application has Admin and Tester 
+users. Sometimes a test accepts either an Admin or a Tester, while another test requires a user to
+ have both Admin and Tester details. How would you model these two scenarios in TypeScript? Explain 
+ the difference between union and intersection and when you would prefer each.
+
+type alias
+
+1. type union(|)---> either this or that(a|b|c)
+2. type intersection(&)----> 2 types will be combined into single type and that will be used to 
+access both type
+
+type Admin={
+    username:string
+    accesslevel:number
+}
+
+type Tester={
+  
+  id:number
+  testTool:string
+}
+
+
+//use type union to restrict the access
+
+type singleAccess=Admin | Tester
+
+//use type intersection for both the access
+
+type dualAccess=Admin & Tester
+
+
+Q5. You are automating an API and the response body is dynamic. You are not sure whether the API 
+will return a string, number, or object. A developer has declared the response as any. What problems
+ can this cause? Would you use any or unknown? Explain with an example.
+
+Q6. You are developing a TypeScript automation framework with a common environment validation utility.
+The utility should allow execution to continue when the environment is valid.
+If an invalid environment is provided, it should immediately throw an error and prevent further execution.
+How would you design this function in TypeScript? What return type would be appropriate, and why?
+
+//never datatype
+
+function stopexecution(msg:string):never{
+
+throw new Error(msg)
+
+}
+
+function envvalidation(env:string){
+
+const validenv=["dev","qa","prod"]
+if(validenv.includes(env)){
+
+    console.log("valid env")
+}else{
+    stopexecution("invalid env")
+}
+
+}
+
+envvalidation("qa")
+ 
+Q7.You are developing a Playwright utility function to search for a customer. The customer name is 
+mandatory, but the customer city is optional because sometimes the search needs to be performed only
+by name.
+How would you design this function so that the city parameter is optional? What should happen when 
+the city is not provided?
+
+function searchcust(name, city) {
+    if (city) {
+        console.log(`user name is ${name} cityname is ${city}`);
+    }
+    else {
+        console.log("user name is", name);
+    }
+}
+searchcust("roja");
+searchcust("roja", "chennai");
+
+Q8. What are the four main OOP principles? Explain how each one can be used in a test automation 
+framework?
+
+encapulation
+Inheritance
+polymorphism
+abstraction
+
+Q9. What is Inheritance in OOP? how it avoids code duplication?  
+
+Q10. What is a constructor in a class?
+   Why is it commonly used in Page Object Model classes?
+
+
+
+F/B form:
+Aug 26 week 5 JA session
+
+https://forms.cloud.microsoft/r/14ENxdmYCF
+
+
+https://forms.cloud.microsoft/Pages/DesignPageV2.aspx?subpage=design&FormId=eOdNgpfGe0qp5fd14FyRQ0OoIk3-aJVKpiMuJXU1QmlUQjdCOFFDT0xaS1k2TFg5RjNMRjJHRVZBUy4u&Token=1e1109c9aa0d4396826553de19e6fcc4

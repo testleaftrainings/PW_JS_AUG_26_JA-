@@ -1,0 +1,355 @@
+Q1. You are creating a Playwright automation framework. Why would you prefer TypeScript over JavaScript?
+
+TypeScript provides static typing, which helps identify errors during development rather than runtime.
+
+For example:
+
+let browserName: string = "Chrome";
+
+browserName = 100; // Compile-time error, number is not allowed.
+
+In a large automation framework, TypeScript helps with:
+
+Type safety
+Better IDE support
+Code readability
+Easier refactoring
+Detecting incorrect method arguments
+Better support for classes and interfaces
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q2. You have a function that accepts a username. How would you ensure that only strings are passed?
+
+I would specify the parameter type.
+
+function login(username: string) {
+    console.log(`Logging in as ${username}`);
+}
+
+login("admin");
+
+If someone passes:
+
+login(100);
+TypeScript reports a compile-time error.
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q3. You need to create user details containing id, name, and role. You will have multiple users with the same structure. 
+How would you design this in TypeScript without repeating the data structure?
+
+First, create a type alias to define the structure. Then create objects using that type.
+
+type User = {
+    id: number;
+    name: string;
+    role: string;
+};
+
+let user1: User = {
+    id: 101,
+    name: "Sindhu",
+    role: "SDET"
+};
+
+let user2: User = {
+    id: 102,
+    name: "John",
+    role: "Tester"
+};
+
+console.log(user1.name);
+console.log(user2.role);
+
+
+type User → defines the structure.
+user1 and user2 → are objects created using that structure.
+This avoids defining id, name, and role repeatedly.
+If a required property is missing or has the wrong datatype, TypeScript gives an error.
+
+Use case: Useful for storing multiple users, test data, API request data, or configuration data with the same 
+structure.
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q4. You are designing test data for an automation framework. An application has Admin and Tester users. Sometimes a 
+test accepts either an Admin or a Tester, while another test requires a user to have both Admin and Tester details. 
+How would you model these two scenarios in TypeScript? Explain the difference between union and intersection and 
+when you would prefer each.
+
+1. Union (|) — Either one
+
+Use union when the value can be one type OR another type.
+
+type Admin = {
+    username: string;
+    accessLevel: number;
+};
+
+type Tester = {
+    username: string;
+    testTool: string;
+};
+
+type User = Admin | Tester;
+
+Now a user can be either:
+
+let user1: User = {
+    username: "admin",
+    accessLevel: 5
+};
+
+let user2: User = {
+    username: "tester",
+    testTool: "Playwright"
+};
+
+
+Automation use case:
+
+Suppose a utility can run tests with either an Admin or Tester account:
+
+function login(user: User) {
+    console.log(`Login as ${user.username}`);
+}
+
+Prefer Union when:
+
+The requirement is "this OR that".
+
+
+2. Intersection (&) — Both together
+
+Use intersection when the object must contain properties from both types.
+
+type Admin = {
+    username: string;
+    accessLevel: number;
+};
+
+type Tester = {
+    username: string;
+    testTool: string;
+};
+
+type AdminTester = Admin & Tester;
+
+Now the object must contain both:
+
+let user: AdminTester = {
+    username: "sindhu",
+    accessLevel: 5,
+    testTool: "Playwright"
+};
+
+Automation use case
+
+Suppose a special test account needs:
+
+Admin permissions
++
+Tester capabilities
+
+Then intersection is appropriate because the test data must satisfy both structures.
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q5.You are automating an API and the response body is dynamic. You are not sure whether the API will return a string,
+ number, or object. A developer has declared the response as any. What problems can this cause? Would you use any 
+ or unknown? Explain with an example.
+
+
+I would prefer unknown when I don't know the type of the value.
+
+The key difference is:
+
+any     → TypeScript allows me to do anything with the value.
+unknown → TypeScript forces me to verify the type before using it.
+
+Example with any
+let response: any = "Success";
+
+console.log(response.toUpperCase());
+
+response.login();       // No compile-time error
+response.user.name;     // No compile-time error
+
+The problem is that TypeScript does not protect us.
+The code may compile but fail at runtime.
+
+Example with unknown
+let response: unknown = "Success";
+
+If I try:
+console.log(response.toUpperCase());
+
+TypeScript gives an error because it doesn't know whether response is a string.
+
+So I must first check the type:
+
+if (typeof response === "string") {
+    console.log(response.toUpperCase());
+}
+
+Now TypeScript knows that response is a string.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q6.You are developing a TypeScript automation framework with a common environment validation utility.
+The utility should allow execution to continue when the environment is valid. If an invalid environment is provided,
+it should immediately throw an error and prevent further execution.
+How would you design this function in TypeScript? What return type would be appropriate, and why?
+
+function stopExecution(message: string): never {
+    throw new Error(message);
+}
+
+function validateEnvironment(environment: string) {
+
+    const validEnvironments = ["DEV", "QA", "PROD"];
+
+    if (validEnvironments.includes(environment)) {
+        console.log(`Valid environment: ${environment}`);
+        console.log("Continue test execution");
+    } else {
+        stopExecution(`Invalid environment: ${environment}`);
+    }
+}
+
+validateEnvironment("QA");
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q7. You are developing a Playwright utility function to search for a customer. The customer name is mandatory, but 
+the customer city is optional because sometimes the search needs to be performed only by name.
+How would you design this function so that the city parameter is optional? What should happen when the city is not provided?
+
+
+function searchCustomer(name: string, city?: string) {
+
+    if (city) {
+        console.log(`Searching for ${name} in ${city}`);
+    } else {
+        console.log(`Searching for ${name}`);
+    }
+}
+
+searchCustomer("John");
+searchCustomer("John", "Chennai");
+
+
+Output
+Searching for John
+Searching for John in Chennai
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q8. What are the four main OOP principles? Explain how each one can be used in a test automation framework?
+
+ENCAPSULATION:
+--------------
+
+Helps to keep locators and page actions inside Page Object classes instead of exposing them directly to tests. 
+That improves maintainability because tests only call methods like login() instead of interacting with raw locators.
+
+   Example:
+ 
+   class LoginPage {
+     private username = '#username';
+
+     async login(user: string) {
+       await this.page.locator(this.username).fill(user);
+     }
+   }
+----------------------------------------------------------------------------
+
+INHERITANCE:
+------------
+
+Helps reuse common functionality through a BasePage, like click, wait, or
+navigation methods, which child pages can inherit.
+
+   Example:
+   
+   class BasePage {
+     async click(locator: string) {
+       await this.page.locator(locator).click();
+     }
+   }
+
+   class LoginPage extends BasePage {}
+----------------------------------------------------------------------------
+
+POLYMORPHISM:
+-------------
+
+Gives flexibility—for example, the same login() method can support
+username/password login or token-based login with different implementations.
+
+   Example:
+   
+   login(user: string, pass: string)
+   login(token: string)
+----------------------------------------------------------------------------
+
+ABSTRACTION:
+------------
+
+Hides implementation complexity from tests. Instead of tests knowing locator
+details, they simply call business-level methods.
+
+   Example:
+   
+   await loginPage.login('admin', 'pass');
+  
+This keeps tests clean, reusable, and easier to maintain in large frameworks.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q9. What is Inheritance in OOP? how it avoids code duplication?  
+
+Inheritance allows one class to reuse the properties and methods of another class. In automation frameworks, page 
+classes extend a BasePage to reuse common methods like click(), fill(), and wait(), which avoids writing the same 
+code in every page class.
+
+          BasePage
+          --------
+          click()
+          fill()
+          wait()
+               ▲
+        -------------------
+        |        |        |
+   LoginPage HomePage CartPage
+      login()  search() checkout()
+
+All child classes share the common methods from BasePage, which eliminates code duplication and keeps the framework
+easy to maintain.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q10. What is a constructor in a class?
+Why is it commonly used in Page Object Model classes?
+
+A constructor is a special method in a class that is automatically executed when an object of that class is created.
+
+   Example
+   class LoginPage {
+
+   constructor(page:Page){
+   this.page = page
+    }
+
+    }
+
+   They are used in POM to:
+
+   Initialize the Playwright page object
+   Initialize locators
+   Setup dependencies required for the page
+  
+   Example:
+
+   constructor(page){
+   this.page = page
+   this.username = page.locator('#username')
+   }
+
+so, Each Page Object receives the same browser page instance.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
