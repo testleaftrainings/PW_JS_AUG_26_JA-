@@ -1,0 +1,160 @@
+
+Q1. In an automation framework, why would you make locators or methods private inside a Page Object
+ class?
+
+ class loginpage{
+
+    private usn
+    private password
+
+async login({
+
+await this.usn.fill()
+
+})
+
+ }
+
+ ln=new LoginPage()
+
+
+Q2: "You have three different page objects: LoginPage, DashboardPage, and ProfilePage. All of them
+ need the same waitForPageLoad() method and a  reference to the page object. How would you use 
+ Inheritance to avoid duplicating this code across all three classes?"
+
+export class BP{
+    constructor(page:page)
+
+    waitForPageLoad(){
+
+    }
+ }
+
+ import class loginpage extends BP{
+    
+ }
+
+ import class DashboardPage extends BP{
+
+ }
+
+ import class ProfilePage extends BP{
+    
+ }
+
+
+Q3: "You have two different payment gateways: Stripe and PayPal. Both need a processPayment(amount) method, 
+but the implementation is completely different. How would you use Polymorphism to write a single 
+test that works with any payment gateway without changing the test logic?"
+
+interface PaymentGateway{
+    processPayment(amount:number)
+}
+
+
+class stripepay implements PaymentGateway{
+    console.log(processing payment using stripe)
+}
+
+class PayPalpay implements PaymentGateway{
+    console.log(processing payment using PayPal)
+}
+
+
+Q4: "Your application supports three login mechanisms: username/password, SSO(Okta), and OTP via SMS. 
+Each has completely different implementation logic.
+How would you design a reusable IAuthentication interface that all three login classes must implement?
+Write the TypeScript interface and one implementation example."
+
+Q5. You're testing a login flow with 50 different user accounts (admin, guest,viewer, editor, etc.)
+Writing 50 separate tests or hardcoding credentials inside each test is not maintainable. How would data 
+parameterization help here?
+Explain the benefits and show a practical example using Playwright's test.each() or a data file.
+
+
+const users=[
+    {role:'admin', username:"admin1", password:"pwd1"},
+    {role:'guest', username:"guest2", password:"pass2"},
+    {role:'editor', username:"edit3", password:"pass3"},
+    ]
+
+users.forEach(user=>{
+
+    test()=>{
+
+        page.goto()
+        page.locator(usn).fill(user.username)
+        page.locator(pwd).fill(user.password)
+
+    }
+})
+
+
+Q6: Your test suite needs to validate checkout functionality with 20 different product configurations 
+(different prices, quantities, discounts). All this test data is stored in a test-data.json file
+maintained by the business team. How would you read and use this JSON data in your Playwright 
+tests? Show the code to import the file and loop through multiple test cases.
+
+json format: test-data.json
+
+[{
+    "productName":"laptop",
+    "qty":2,
+    "discount":10
+
+},
+{
+    "productName":"phone",
+    "qty":1,
+    "discount":5
+
+}]
+
+import record from 'test-data.json'
+
+record.forEach((item)=>{
+test(`${item.productName}`,async({page})=>{
+await page.goto()
+await page.loctor('#quantity).fill(item.qty)
+
+
+
+})
+})
+
+
+Q7: Your QA team has provided a CSV file with 500 rows of test data for form validation (name, email, phone, address). 
+They update this file daily and expect the tests to use the latest data. How would you read this 
+CSV file in Playwright and run the same test for each row? Include handling for headers, empty rows,
+and special characters.
+
+
+Q8: Your team is deciding between JSON and CSV for storing test data. You have nested data structures 
+(like an order with multiple line items) and also flat data (like 50 login credentials). Compare 
+JSON vs CSV for: readability, maintainability, support for complex data types, and ease of use in
+Playwright.Which one would you choose for each scenario and why?
+
+Q9: You have three environments: QA (https://qa.myapp.com), Staging(https://staging.myapp.com), 
+and Production (https://myapp.com). You want to run the same test suite against any environment 
+by just changing an environment variable. How would you configure baseURL in playwright.config.ts
+to read from process.env.BASE_URL? Also show how to override it via command line.
+
+use:{
+    baseURL:process.env.Base_URL || 'https://qa.myapp.com'
+    }
+
+$env:Base_URL="https://staging.myapp.com"(set)
+$env:Base_URL=""(unset)
+$env:Base_URL(tocheck which environment is present)
+
+
+
+
+
+F/B form:
+Aug 26 week 6 JA session
+
+https://forms.cloud.microsoft/r/a1tyGX3EYE
+
+https://forms.cloud.microsoft/Pages/DesignPageV2.aspx?subpage=design&FormId=eOdNgpfGe0qp5fd14FyRQ0OoIk3-aJVKpiMuJXU1QmlUQVA1VTZOUzk2QkxBOTBTOUFaN1ZVV0xUSi4u&Token=4212f1d2bfc8457c9072c88aa0b904f0
+

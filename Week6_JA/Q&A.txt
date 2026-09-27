@@ -1,0 +1,420 @@
+Q1. In an automation framework, why would you make locators or \
+methods private inside a Page Object class?
+
+ Locators are usually made private to enforce encapsulation.
+
+ Reasons:
+ Prevent direct access from test files
+ Ensure locators are used only through page methods
+ Reduce accidental misuse
+ Improve maintainability
+
+Example:
+
+class LoginPage {
+
+ private usernameField
+ private passwordField
+
+ async login(user, pass){
+   await this.usernameField.fill(user)
+ }
+}
+
+
+Tests should call:
+loginPage.login()
+
+Not
+page.locator('#username')
+
+================================================================================
+
+ Inheritance to Avoid Code Duplication
+================================================================================
+
+Q2: "You have three different page objects: LoginPage, DashboardPage, and
+   ProfilePage. All of them need the same waitForPageLoad() method and a
+   reference to the page object. How would you use Inheritance to avoid
+   duplicating this code across all three classes?"
+ 
+A: I would create a reusable BasePage class containing common functionality like
+   the Playwright page reference and shared methods such as waitForPageLoad().
+   Then all page classes would extend that base class instead of duplicating the
+   same code.
+
+   Example:
+   ----------------------------------------------------------------------------
+   import { Page } from '@playwright/test';
+
+   class BasePage {
+     constructor(protected page: Page) {}
+
+     async waitForPageLoad() {
+       await this.page.waitForLoadState('networkidle');
+     }
+   }
+
+   class LoginPage extends BasePage {
+     async login(user: string, pass: string) {
+       await this.page.fill('#username', user);
+       await this.page.fill('#password', pass);
+       await this.page.click('#login');
+     }
+   }
+
+   class DashboardPage extends BasePage {
+     async openReports() {
+       await this.page.click('#reports');
+     }
+   }
+
+   class ProfilePage extends BasePage {
+     async updateProfile() {
+       await this.page.click('#save-profile');
+     }
+   }
+   ----------------------------------------------------------------------------
+
+   This reduces duplication, improves maintainability, and keeps shared behavior
+   centralized.
+
+   Interviewer tip: They're checking whether you can design scalable framework
+   architecture using inheritance and reusable base classes.
+
+===================================================================================================================================================
+
+
+================================================================================
+ Polymorphism with Payment Gateways
+================================================================================
+
+Q3: "You have two different payment gateways: Stripe and PayPal. Both need a
+   processPayment(amount) method, but the implementation is completely
+   different. How would you use Polymorphism to write a single test that works
+   with any payment gateway without changing the test logic?"
+
+A: I would create a common interface or parent class with a processPayment()
+   method, and then implement it differently for Stripe and PayPal. The test
+   would work against the common contract instead of knowing gateway-specific
+   details. That's polymorphism—the same method behaving differently based on
+   the object passed.
+
+   Example:
+   ----------------------------------------------------------------------------
+   interface PaymentGateway {
+     processPayment(amount: number): Promise<void>;
+   }
+
+   class StripePayment implements PaymentGateway {
+     async processPayment(amount: number) {
+       console.log(`Processing ${amount} via Stripe`);
+     }
+   }
+
+   class PayPalPayment implements PaymentGateway {
+     async processPayment(amount: number) {
+       console.log(`Processing ${amount} via PayPal`);
+     }
+   }
+   ----------------------------------------------------------------------------
+
+   Single reusable test logic:
+   ----------------------------------------------------------------------------
+   async function executePayment(gateway: PaymentGateway) {
+     await gateway.processPayment(500);
+   }
+
+   await executePayment(new StripePayment());
+   await executePayment(new PayPalPayment());
+   ----------------------------------------------------------------------------
+
+   This keeps the test scalable because adding a new gateway like RazorPay later
+   doesn't require changing the core test flow.
+
+   Interviewer tip: They're checking whether you understand practical
+   polymorphism and how it improves framework extensibility and maintainability.
+
+============================================================================================================================================================
+Interface for Authentication Mechanisms
+================================================================================
+
+Q4: "Your application supports three login mechanisms: username/password, SSO
+   (Okta), and OTP via SMS. Each has completely different implementation logic.
+   How would you design a reusable IAuthentication interface that all three
+   login classes must implement? Write the TypeScript interface and one
+   implementation example."
+
+A: I would create a common IAuthentication interface with a standard login()
+   method, and each authentication mechanism would implement its own logic
+   internally. This keeps the framework extensible because new login types can
+   be added without changing test logic.
+
+   Example:
+   ----------------------------------------------------------------------------
+   interface IAuthentication {
+     login(): Promise<void>;
+   }
+
+   // Username/Password implementation
+   class UsernamePasswordAuth implements IAuthentication {
+     constructor(private page: any) {}
+
+     async login(): Promise<void> {
+       await this.page.fill('#username', 'admin');
+       await this.page.fill('#password', 'pass123');
+       await this.page.click('#login');
+     }
+   }
+
+   // Okta SSO implementation
+   class OktaSSOAuth implements IAuthentication {
+     constructor(private page: any) {}
+
+     async login(): Promise<void> {
+       await this.page.goto(process.env.OKTA_URL);
+       await this.page.click('#okta-login');
+       // SSO redirect happens automatically
+     }
+   }
+
+   // OTP implementation
+   class OTPAuth implements IAuthentication {
+     constructor(private page: any, private phoneNumber: string) {}
+
+     async login(): Promise<void> {
+       await this.page.fill('#phone', this.phoneNumber);
+       await this.page.click('#send-otp');
+       const otp = await this.getOTPFromSMS();
+       await this.page.fill('#otp', otp);
+       await this.page.click('#verify');
+     }
+
+     private async getOTPFromSMS(): Promise<string> {
+       // API call to SMS service
+       return '123456';
+     }
+   }
+   ----------------------------------------------------------------------------
+
+   The test only interacts with the common login() method, not implementation
+   details.
+
+   Interviewer tip: They're checking whether you can design scalable
+   authentication architecture using interfaces and abstraction instead of
+   hardcoding logic into tests.
+
+=====================================================================================================================================================================
+
+Q5: You're testing a login flow with 50 different user accounts (admin, guest,
+viewer, editor, etc.). Writing 50 separate tests or hardcoding credentials
+inside each test is not maintainable. How would data parameterization help here?
+Explain the benefits and show a practical example using Playwright's test.each()
+or a data file.
+
+A: I would use data parameterization so the same login test runs with multiple
+user accounts using one reusable test flow. It improves maintainability, reduces
+duplicate code, and makes adding new users as simple as updating a data file.
+It also gives better coverage because we can validate different roles
+consistently.
+
+Example:
+----------------------------------------------------------------------------
+import { test, expect } from '@playwright/test';
+
+const users = [
+  { role: 'admin', username: 'admin1', password: 'pass1' },
+  { role: 'guest', username: 'guest1', password: 'pass2' },
+  { role: 'viewer', username: 'viewer1', password: 'pass3' }
+];
+
+users.forEach(user => {
+  test(`Login as ${user.role}`, async ({ page }) => {
+    await page.goto('/login');
+    await page.fill('#username', user.username);
+    await page.fill('#password', user.password);
+    await page.click('#login');
+    await expect(page).toHaveURL(/dashboard/);
+  });
+});
+----------------------------------------------------------------------------
+
+In real projects, I'd usually keep this data in JSON or CSV instead of
+hardcoding.
+
+Interviewer tip: They are checking whether you understand scalable test design,
+reusability, and data-driven testing in Playwright.
+
+
+===============================================================================
+
+Q6: Your test suite needs to validate checkout functionality with 20 different
+product configurations (different prices, quantities, discounts). All this test
+data is stored in a test-data.json file maintained by the business team. How
+would you read and use this JSON data in your Playwright tests? Show the code to
+import the file and loop through multiple test cases.
+
+A: I would keep the business-owned JSON file separate from test logic and read
+it directly into the Playwright test. Then I'd loop through each product
+configuration and run the same checkout validation for every dataset. This keeps
+the tests clean and allows the business team to update data without changing
+code.
+
+Example:
+----------------------------------------------------------------------------
+import { test, expect } from '@playwright/test';
+import testData from './test-data.json';
+
+testData.forEach((item) => {
+  test(`Checkout for ${item.productName}`, async ({ page }) => {
+    await page.goto('/shop');
+
+    await page.fill('#quantity', item.quantity.toString());
+    await page.fill('#discount', item.discount.toString());
+    await page.click(`text=${item.productName}`);
+    await page.click('#checkout');
+
+    await expect(page.locator('#totalPrice'))
+      .toHaveText(item.expectedTotal.toString());
+  });
+});
+----------------------------------------------------------------------------
+
+Example test-data.json:
+----------------------------------------------------------------------------
+[
+  {
+    "productName": "Laptop",
+    "quantity": 2,
+    "discount": 10,
+    "expectedTotal": 1800
+  },
+  {
+    "productName": "Phone",
+    "quantity": 1,
+    "discount": 5,
+    "expectedTotal": 950
+  }
+]
+----------------------------------------------------------------------------
+
+In larger frameworks, I'd also validate the JSON schema to avoid bad test data
+breaking the suite.
+
+Interviewer tip: They want to see if you can separate test data from test logic
+and build maintainable data-driven Playwright tests.
+
+
+================================================================================
+
+Q7: Your QA team has provided a CSV file with 500 rows of test data for form
+validation (name, email, phone, address). They update this file daily and expect
+the tests to use the latest data. How would you read this CSV file in Playwright
+and run the same test for each row? Include handling for headers, empty rows,
+and special characters.
+
+A: I would read the CSV at runtime so the suite always uses the latest daily
+file. I'd parse the headers into objects, filter empty rows, and use a proper
+CSV parser to safely handle commas, quotes, and special characters. Then I'd
+loop through each record and run the same validation flow.
+
+Example:
+----------------------------------------------------------------------------
+import { test, expect } from '@playwright/test';
+import fs from 'fs';
+import { parse } from 'csv-parse/sync';
+
+const file = fs.readFileSync('./test-data.csv', 'utf-8');
+
+const records = parse(file, {
+  columns: true,          // uses header row
+  skip_empty_lines: true,
+  trim: true
+});
+
+records.forEach((row: any, index: number) => {
+  test(`Form validation row ${index + 1}`, async ({ page }) => {
+    await page.goto('/form');
+
+    await page.fill('#name', row.name);
+    await page.fill('#email', row.email);
+    await page.fill('#phone', row.phone);
+    await page.fill('#address', row.address);
+
+    await page.click('#submit');
+    await expect(page.locator('.success-msg')).toBeVisible();
+  });
+});
+----------------------------------------------------------------------------
+
+Using a parser is important because manual split(',') can fail when addresses
+contain commas or quotes.
+
+Interviewer tip: They're checking whether you know real-world data-driven
+testing, file handling, and why robust parsing is better than quick hacks.
+
+=====================================================================================
+
+Q8: Your team is deciding between JSON and CSV for storing test data. You have
+nested data structures (like an order with multiple line items) and also flat
+data (like 50 login credentials). Compare JSON vs CSV for: readability,
+maintainability, support for complex data types, and ease of use in Playwright.
+Which one would you choose for each scenario and why?
+
+A: I'd choose based on the data shape. For nested or relational data like orders
+with multiple line items, JSON is better because it supports objects, arrays,
+and hierarchy naturally. For flat bulk data like 1000 login credentials, CSV is
+better because it's lightweight, Excel-friendly, and easy for business users to
+maintain.
+
+JSON is stronger for readability in complex scenarios, maintainability of
+structured data, and direct import into Playwright as objects. CSV is simpler
+for tabular data, mass updates, and quick filtering or editing in Excel.
+
+So in this case, I'd use JSON for order/checkout scenarios and CSV for
+login/account datasets. In real frameworks, I often use both depending on the
+module.
+
+Interviewer tip: They want to know if you can choose the right tool
+pragmatically instead of forcing one format for every scenario. 
+
+==================================================================================================================
+
+Q9.You have three environments: QA (https://qa.myapp.com), Staging
+(https://staging.myapp.com), and Production (https://myapp.com). You want to run
+the same test suite against any environment by just changing an environment
+variable. How would you configure baseURL in playwright.config.ts to read from
+process.env.BASE_URL? Also show how to override it via command line.
+
+A: I would keep baseURL dynamic in playwright.config.ts by reading from
+process.env.BASE_URL. That way the same tests run in QA, Staging, or Production
+without changing test code.
+
+Example:
+----------------------------------------------------------------------------
+import { defineConfig } from '@playwright/test';
+
+export default defineConfig({
+  use: {
+    baseURL: process.env.BASE_URL || 'https://qa.myapp.com'
+  }
+});
+----------------------------------------------------------------------------
+
+Then I can override it from command line:
+
+----------------------------------------------------------------------------
+BASE_URL=https://staging.myapp.com npx playwright test
+----------------------------------------------------------------------------
+
+For Windows PowerShell:
+
+----------------------------------------------------------------------------
+$env:BASE_URL="https://myapp.com"; npx playwright test
+----------------------------------------------------------------------------
+
+This approach keeps config flexible and environment-independent.
+
+Interviewer tip: They want to see if you understand scalable environment
+management and how to avoid duplicate configs across environments.
+
